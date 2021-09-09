@@ -140,3 +140,7 @@ dmypy.json
 pyvenv.cfg
 .venv
 pip-selfcheck.json
+
+
+# discord bot
+config.json
