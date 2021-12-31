@@ -2,9 +2,6 @@ import discord
 from gtts import gTTS
 from config import Config
 
-# todo: 外部コンフィグファイルに記述する
-sim_mokomo_member_id = 275399320940052480
-
 
 class MyClient(discord.Client):
     async def on_ready(self):
@@ -24,7 +21,7 @@ class MyClient(discord.Client):
         else:
             if message.guild.voice_client is None:
                 return
-            if message.author.id == sim_mokomo_member_id:
+            if message.author.id == config.speaker_member_id:
                 voice_client = message.guild.voice_client
                 play(voice_client, message.content)
 
