@@ -1,3 +1,4 @@
+import os
 import discord
 from gtts import gTTS
 from config import Config
@@ -26,12 +27,20 @@ class MyClient(discord.Client):
                 play(voice_client, message.content)
 
 
+def get_temp_resource_path() -> str:
+    return os.path.join(os.getcwd(), 'temp_resources')
+
+
 def play(voice_client, text):
     output = gTTS(text=text, lang='ja', slow=False)
-    # todo: 専用のディレクトリ以下に音声ファイルを生成する
     output_file_name = "text_voice.mp3"
-    output.save(output_file_name)
-    voice_client.play(discord.FFmpegPCMAudio(output_file_name))
+
+    temp_resource_path = get_temp_resource_path()
+    if not os.path.exists(temp_resource_path):
+        os.mkdir(temp_resource_path)
+    output_path = os.path.join(temp_resource_path, output_file_name)
+    output.save(output_path)
+    voice_client.play(discord.FFmpegPCMAudio(output_path))
 
 
 client = MyClient()
