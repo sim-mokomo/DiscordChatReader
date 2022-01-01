@@ -2,7 +2,8 @@ import os
 import discord
 from gtts import gTTS
 from config import Config
-
+from pydub import AudioSegment
+from pydub import effects
 
 class MyClient(discord.Client):
     async def on_ready(self):
@@ -40,8 +41,12 @@ def play(voice_client, text):
         os.mkdir(temp_resource_path)
     output_path = os.path.join(temp_resource_path, output_file_name)
     output.save(output_path)
-    voice_client.play(discord.FFmpegPCMAudio(output_path))
 
+    # 話者速度調整
+    source_audio = AudioSegment.from_mp3(output_path)
+    source_audio = effects.speedup(source_audio)
+    source_audio.export(output_path, format="mp3")
+    voice_client.play(discord.FFmpegPCMAudio(output_path))
 
 client = MyClient()
 config = Config()
