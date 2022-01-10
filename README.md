@@ -21,6 +21,9 @@ pip install PyAudio-0.2.11-cp39-cp39-win_amd64.whl
 
 # Configについて
 
+`<root>/config-template.json` を `<root>/config.json` に変更することで読み込まれるようになる。
+デフォルトではダミー値が記述されているので、以下の説明を参考に適切な値を `config.json` に入力する。
+
 - speaker_member_id
   - Discordのボイスチャンネル上のアイコンから「IDをコピー」で取得
 - token
