@@ -6,27 +6,49 @@ import re
 import emoji
 
 
+class Command:
+    command_name = ''
+    callback = None
+
+    def __init__(self, command_name, callback):
+        self.command_name = command_name
+        self.callback = callback
+
+
 class MyClient(discord.Client):
     async def on_ready(self):
         print(f'Logged on as {self.user}')
+        command_table.append(Command('/come-on', self.on_execute_come_command))
+        command_table.append(Command('/leave', self.on_execute_leave_command))
 
     async def on_message(self, message):
         if message.author.bot:
             return
-        if message.content == "/come-on":
-            if message.author.voice is None:
+
+        for command in command_table:
+            if command.command_name == message.content:
+                await command.callback(message)
                 return
-            await message.author.voice.channel.connect()
-        elif message.content == "/leave":
-            if message.guild.voice_client is None:
-                return
-            await message.guild.voice_client.disconnect()
-        else:
-            if message.guild.voice_client is None:
-                return
-            if message.author.id == config.speaker_member_id:
-                voice_client = message.guild.voice_client
-                play(voice_client, message.content)
+        await self.on_execute_any_text_command(message)
+
+    async def on_execute_come_command(self, message):
+        if message.author.voice is None:
+            return
+        await message.author.voice.channel.connect()
+        return
+
+    async def on_execute_leave_command(self, message):
+        if message.guild.voice_client is None:
+            return
+        await message.guild.voice_client.disconnect()
+        return
+
+    async def on_execute_any_text_command(self, message):
+        if message.guild.voice_client is None:
+            return
+        if message.author.id == config.speaker_member_id:
+            play(message.guild.voice_client, message.content)
+        return
 
 
 def get_temp_resource_path() -> str:
@@ -69,6 +91,7 @@ def remove_mention_from_text(text):
 
 client = MyClient()
 config = Config()
+command_table: [Command] = []
 
 voice_text = VoiceText(config.voice_text.api_key)
 voice_text.speaker(config.voice_text.speaker)
