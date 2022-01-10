@@ -4,6 +4,8 @@ from gtts import gTTS
 from config import Config
 from pydub import AudioSegment
 from pydub import effects
+from voicetext import VoiceText
+
 
 class MyClient(discord.Client):
     async def on_ready(self):
@@ -33,21 +35,24 @@ def get_temp_resource_path() -> str:
 
 
 def play(voice_client, text):
-    output = gTTS(text=text, lang='ja', slow=False)
     output_file_name = "text_voice.mp3"
 
     temp_resource_path = get_temp_resource_path()
     if not os.path.exists(temp_resource_path):
         os.mkdir(temp_resource_path)
     output_path = os.path.join(temp_resource_path, output_file_name)
-    output.save(output_path)
 
-    # 話者速度調整
-    source_audio = AudioSegment.from_mp3(output_path)
-    source_audio = effects.speedup(source_audio)
-    source_audio.export(output_path, format="mp3")
+    with open(output_path, 'wb') as f:
+        f.write(voice_text.to_wave(text))
+
     voice_client.play(discord.FFmpegPCMAudio(output_path))
+
 
 client = MyClient()
 config = Config()
+
+voice_text = VoiceText(config.voice_text.api_key)
+voice_text.speaker(config.voice_text.speaker)
+voice_text.speed(config.voice_text.speed)
+
 client.run(config.token)
