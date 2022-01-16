@@ -80,7 +80,7 @@ class MyClient(discord.Client):
             .speaker_convert_config_table \
             .get_config_from_member_id(message.author.id)
         if speak_convert_config is not None:
-            message_stack.append(SpeakerMessage(message, speak_convert_config.speaker_name))
+            message_stack.append(SpeakerMessage(message, speak_convert_config))
 
 
 def get_temp_resource_path() -> str:
