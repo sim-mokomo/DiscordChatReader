@@ -1,9 +1,17 @@
 {
-  "speaker_member_id": "<読み上げ対象とするDiscordメンバのID>",
+  "speaker_convert_config_table" : [
+    {
+      "member_id" : "<読み上げ対象とするDiscordメンバのID>",
+      "speaker_name" : "<話者名、WebTextApiのリファレンスから確認可能>"
+    },
+    {
+      "member_id" : "<読み上げ対象とするDiscordメンバのID>",
+      "speaker_name" : "<話者名、WebTextApiのリファレンスから確認可能>"
+    }
+  ],
   "token" : "<token>",
   "voice_text" : {
     "api_key" : "<あなたの発行されたAPIキー>",
-    "speaker" : "<話者名、WebTextApiのリファレンスから確認可能>",
     "speed" : 100
   }
 }

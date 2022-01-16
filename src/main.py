@@ -46,16 +46,20 @@ class MyClient(discord.Client):
     async def on_execute_any_text_command(self, message):
         if message.guild.voice_client is None:
             return
-        if message.author.id == config.speaker_member_id:
-            play(message.guild.voice_client, message.content)
-        return
+
+        # TODO: 混線すると一部メッセージがスキップされる、入力メッセージはスタックさせておき、随時処理を進めるようにする
+        for speaker_config in config.speaker_convert_config_table:
+            if message.author.id == speaker_config.member_id:
+                play(message.guild.voice_client, message.content, speaker_config.speaker_name)
+                return
+
 
 
 def get_temp_resource_path() -> str:
     return os.path.join(os.getcwd(), 'temp_resources')
 
 
-def play(voice_client, text):
+def play(voice_client, text, speaker_name: str):
     output_file_name = "text_voice.mp3"
 
     temp_resource_path = get_temp_resource_path()
@@ -70,6 +74,7 @@ def play(voice_client, text):
         text = remove_mention_from_text(text)
         print(f'after: {text}')
         if len(text) > 0:
+            voice_text.speaker(speaker_name)
             f.write(voice_text.to_wave(text))
 
     voice_client.play(discord.FFmpegPCMAudio(output_path))
@@ -94,7 +99,6 @@ config = Config()
 command_table: [Command] = []
 
 voice_text = VoiceText(config.voice_text.api_key)
-voice_text.speaker(config.voice_text.speaker)
 voice_text.speed(config.voice_text.speed)
 
 client.run(config.token)
