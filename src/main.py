@@ -38,7 +38,7 @@ class MyCog(commands.Cog):
             self.current_speak_message = message_stack.pop(0)
             play(self.current_speak_message.get_voice_client(),
                  self.current_speak_message.get_message(),
-                 self.current_speak_message.speaker_name)
+                 self.current_speak_message.get_config())
 
         if not self.current_speak_message.is_playing():
             self.current_speak_message = None
@@ -86,8 +86,9 @@ class MyClient(discord.Client):
 def get_temp_resource_path() -> str:
     return os.path.join(os.getcwd(), 'temp_resources')
 
+
 # TODO: プレイヤーとして定義する
-def play(voice_client, text, speaker_name: str):
+def play(voice_client, text, message_config: SpeakerConverterConfig):
     output_file_name = "text_voice.mp3"
 
     temp_resource_path = get_temp_resource_path()
@@ -102,7 +103,8 @@ def play(voice_client, text, speaker_name: str):
         text = remove_mention_from_text(text)
         print(f'after: {text}')
         if len(text) > 0:
-            voice_text.speaker(speaker_name)
+            voice_text.speaker(message_config.speaker_name)
+            voice_text.speed(message_config.speed)
             f.write(voice_text.to_wave(text))
 
     voice_client.play(discord.FFmpegPCMAudio(output_path))
@@ -127,8 +129,6 @@ config: Config = ConfigLoader.load('config.json')
 command_table: [Command] = []
 cog = MyCog()
 message_stack: [SpeakerMessage] = []
-
-voice_text = VoiceText(config.voice_text.api_key)
-voice_text.speed(config.voice_text.speed)
+voice_text = VoiceText(config.voice_text_web_api_key)
 
 client.run(config.token)

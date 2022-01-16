@@ -2,12 +2,6 @@ from speaker_config import SpeakerConverterConfigTable
 
 
 class Config:
-    token = ""
-
-    # TODO: SpeakerConverterConfigに統合させる
-    class VoiceText:
-        api_key = ""
-        speed = 0
-
-    voice_text = VoiceText()
+    token: str = ""
+    voice_text_web_api_key: str = ""
     speaker_convert_config_table: SpeakerConverterConfigTable = SpeakerConverterConfigTable()

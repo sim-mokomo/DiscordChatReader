@@ -1,6 +1,7 @@
 class SpeakerConverterConfig:
     member_id: int = 0
     speaker_name: str = ""
+    speed: int = 0
 
 
 class SpeakerConverterConfigTable:

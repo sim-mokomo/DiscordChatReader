@@ -1,13 +1,14 @@
 from discord import Message, VoiceClient
+from speaker_config import SpeakerConverterConfig
 
 
 class SpeakerMessage:
     message: Message = None
-    speaker_name: str = ""
+    config: SpeakerConverterConfig = None
 
-    def __init__(self, message, speaker_name: str):
+    def __init__(self, message, config: SpeakerConverterConfig):
         self.message = message
-        self.speaker_name = speaker_name
+        self.config = config
 
     # TODO: 音声プレイヤー側に定義したほうがよいであろう
     def is_playing(self):
@@ -18,3 +19,6 @@ class SpeakerMessage:
 
     def get_message(self):
         return self.message.content
+
+    def get_config(self):
+        return self.config
