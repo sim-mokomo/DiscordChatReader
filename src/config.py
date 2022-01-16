@@ -1,4 +1,5 @@
 import json
+from speaker_config import SpeakerConverterConfigTable
 
 
 class Config:
@@ -9,12 +10,10 @@ class Config:
         api_key = ""
         speaker = ""
         speed = 0
+
     voice_text = VoiceText()
 
-    class SpeakerConverterConfig:
-        member_id: int = 0
-        speaker_name: str = ""
-    speaker_convert_config_table: [SpeakerConverterConfig] = []
+    speaker_convert_config_table: SpeakerConverterConfigTable = SpeakerConverterConfigTable()
 
     def __init__(self):
         json_open = open('config.json', 'r')

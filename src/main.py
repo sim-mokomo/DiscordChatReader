@@ -33,11 +33,13 @@ class MyCog(commands.Cog):
 
         if self.current_speak_message is None:
             self.current_speak_message = message_stack.pop(0)
-            for speaker_config in config.speaker_convert_config_table:
-                if self.current_speak_message.author.id == speaker_config.member_id:
-                    play(self.current_speak_message.guild.voice_client,
-                         self.current_speak_message.content,
-                         speaker_config.speaker_name)
+            speaker_config = config\
+                .speaker_convert_config_table\
+                .get_config_from_member_id(self.current_speak_message.author.id)
+            if speaker_config is not None:
+                play(self.current_speak_message.guild.voice_client,
+                     self.current_speak_message.content,
+                     speaker_config.speaker_name)
 
         if not self.current_speak_message.guild.voice_client.is_playing():
             self.current_speak_message = None
@@ -76,10 +78,11 @@ class MyClient(discord.Client):
         if message.guild.voice_client is None:
             return
 
-        for speaker_config in config.speaker_convert_config_table:
-            if message.author.id == speaker_config.member_id:
-                message_stack.append(message)
-                return
+        speak_convert_config = config\
+            .speaker_convert_config_table\
+            .get_config_from_member_id(message.author.id)
+        if speak_convert_config is not None:
+            message_stack.append(message)
 
 
 def get_temp_resource_path() -> str:
