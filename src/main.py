@@ -109,7 +109,7 @@ def play(voice_client, text, message_config: SpeakerConverterConfig):
 
     voice_client.play(discord.FFmpegPCMAudio(output_path))
 
-
+# TODO: テキストフォーマッタは別クラスにする
 def remove_emoji_from_text(text):
     return ''.join(filter(lambda x: x not in emoji.UNICODE_EMOJI_ENGLISH, text))
 
