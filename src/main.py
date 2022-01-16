@@ -2,6 +2,7 @@ import os
 import discord
 from discord.ext import tasks, commands
 from config import Config
+from config_loader import ConfigLoader
 from voicetext import VoiceText
 from speaker_config import SpeakerConverterConfig
 from speaker_message import SpeakerMessage
@@ -122,7 +123,7 @@ def remove_mention_from_text(text):
 
 
 client = MyClient()
-config = Config()
+config: Config = ConfigLoader.load('config.json')
 command_table: [Command] = []
 cog = MyCog()
 message_stack: [SpeakerMessage] = []
