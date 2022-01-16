@@ -1,5 +1,6 @@
 import os
 import discord
+from discord.ext import tasks, commands
 from config import Config
 from voicetext import VoiceText
 import re
@@ -13,6 +14,34 @@ class Command:
     def __init__(self, command_name, callback):
         self.command_name = command_name
         self.callback = callback
+
+
+class MyCog(commands.Cog):
+    current_speak_message: discord.Message = None
+
+    def __init__(self):
+        self.index = 0
+        self.printer.start()
+
+    def cof_unload(self):
+        self.printer.cancel()
+
+    @tasks.loop(seconds=0.5)
+    async def printer(self):
+        if not (len(message_stack) > 0):
+            return
+
+        if self.current_speak_message is None:
+            self.current_speak_message = message_stack.pop(0)
+            for speaker_config in config.speaker_convert_config_table:
+                if self.current_speak_message.author.id == speaker_config.member_id:
+                    play(self.current_speak_message.guild.voice_client,
+                         self.current_speak_message.content,
+                         speaker_config.speaker_name)
+
+        if not self.current_speak_message.guild.voice_client.is_playing():
+            self.current_speak_message = None
+
 
 
 class MyClient(discord.Client):
@@ -47,12 +76,10 @@ class MyClient(discord.Client):
         if message.guild.voice_client is None:
             return
 
-        # TODO: 混線すると一部メッセージがスキップされる、入力メッセージはスタックさせておき、随時処理を進めるようにする
         for speaker_config in config.speaker_convert_config_table:
             if message.author.id == speaker_config.member_id:
-                play(message.guild.voice_client, message.content, speaker_config.speaker_name)
+                message_stack.append(message)
                 return
-
 
 
 def get_temp_resource_path() -> str:
@@ -97,6 +124,8 @@ def remove_mention_from_text(text):
 client = MyClient()
 config = Config()
 command_table: [Command] = []
+cog = MyCog()
+message_stack: [discord.Message] = []
 
 voice_text = VoiceText(config.voice_text.api_key)
 voice_text.speed(config.voice_text.speed)
