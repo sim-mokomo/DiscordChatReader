@@ -3,6 +3,8 @@ import discord
 from discord.ext import tasks, commands
 from config import Config
 from voicetext import VoiceText
+from speaker_config import SpeakerConverterConfig
+from speaker_message import SpeakerMessage
 import re
 import emoji
 
@@ -17,7 +19,7 @@ class Command:
 
 
 class MyCog(commands.Cog):
-    current_speak_message: discord.Message = None
+    current_speak_message: SpeakerMessage = None
 
     def __init__(self):
         self.index = 0
@@ -33,17 +35,12 @@ class MyCog(commands.Cog):
 
         if self.current_speak_message is None:
             self.current_speak_message = message_stack.pop(0)
-            speaker_config = config\
-                .speaker_convert_config_table\
-                .get_config_from_member_id(self.current_speak_message.author.id)
-            if speaker_config is not None:
-                play(self.current_speak_message.guild.voice_client,
-                     self.current_speak_message.content,
-                     speaker_config.speaker_name)
+            play(self.current_speak_message.get_voice_client(),
+                 self.current_speak_message.get_message(),
+                 self.current_speak_message.speaker_name)
 
-        if not self.current_speak_message.guild.voice_client.is_playing():
+        if not self.current_speak_message.is_playing():
             self.current_speak_message = None
-
 
 
 class MyClient(discord.Client):
@@ -78,17 +75,17 @@ class MyClient(discord.Client):
         if message.guild.voice_client is None:
             return
 
-        speak_convert_config = config\
-            .speaker_convert_config_table\
+        speak_convert_config: SpeakerConverterConfig = config \
+            .speaker_convert_config_table \
             .get_config_from_member_id(message.author.id)
         if speak_convert_config is not None:
-            message_stack.append(message)
+            message_stack.append(SpeakerMessage(message, speak_convert_config.speaker_name))
 
 
 def get_temp_resource_path() -> str:
     return os.path.join(os.getcwd(), 'temp_resources')
 
-
+# TODO: プレイヤーとして定義する
 def play(voice_client, text, speaker_name: str):
     output_file_name = "text_voice.mp3"
 
@@ -128,7 +125,7 @@ client = MyClient()
 config = Config()
 command_table: [Command] = []
 cog = MyCog()
-message_stack: [discord.Message] = []
+message_stack: [SpeakerMessage] = []
 
 voice_text = VoiceText(config.voice_text.api_key)
 voice_text.speed(config.voice_text.speed)
