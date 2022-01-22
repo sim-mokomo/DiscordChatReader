@@ -101,18 +101,26 @@ def play(voice_client, text, message_config: SpeakerConverterConfig):
         text = remove_emoji_from_text(text)
         text = remove_custom_emoji_from_text(text)
         text = remove_mention_from_text(text)
-        print(f'after: {text}')
+        text = remove_channel_from_text(text)
+        text = remove_url_from_text(text)
+        print(f'after: {text} len {len(text)}')
         if len(text) > 0:
             voice_text.speaker(message_config.speaker_name)
             voice_text.speed(message_config.speed)
             f.write(voice_text.to_wave(text))
+            voice_client.play(discord.FFmpegPCMAudio(output_path))
 
-    voice_client.play(discord.FFmpegPCMAudio(output_path))
 
 # TODO: テキストフォーマッタは別クラスにする
 def remove_emoji_from_text(text):
     return ''.join(filter(lambda x: x not in emoji.UNICODE_EMOJI_ENGLISH, text))
 
+def remove_channel_from_text(text:str) -> str:
+    # カスタム絵文字フォーマットは <#channel_id>
+    return re.sub(r'<#\d+>', '', text)
+
+def remove_url_from_text(text:str) -> str:
+    return re.sub(r'https?://[\w/:%#\$&\?\(\)~\.=\+\-]+', '', text)
 
 def remove_custom_emoji_from_text(text):
     # カスタム絵文字フォーマットは <:emoji_name:emoji_id>
