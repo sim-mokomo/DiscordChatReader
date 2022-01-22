@@ -1,0 +1,8 @@
+version: '3'
+services: 
+  python:
+    build: .
+    tty: true
+    container_name: python
+    volumes:
+      - .:/code
